@@ -21,9 +21,14 @@ This handler can be used as a total replacement for Django's ``TemporaryFileUplo
 
         CONTENT_TYPE_CHECK_ENABLED = [True or False]
 
-This determines whether the handler will check the content type of the file against the allowed types that have been configured in the database. If you don't want this feature, simply leave the option unconfigured -- it defaults to ``False``, but if you do, then you'll need to configure some allowed types from within Django's admin interface.
+This determines whether the handler will check the content type of the file against the allowed types that have been configured in the database. If you don't want this feature, simply leave the option unconfigured -- it defaults to ``False``, but if you do, then you'll need to configure some allowed types from within Django's admin interface. In order to do that, you need to add ``clamav_upload`` to ``INSTALLED_APPS`` in ``settings.py``:
 
-The check is simple, it relies on the content-type provided by the user's browser but I plan on not relying on this in the future and instead incorporating ``python-magic`` to determine the content-type of the uploaded file.
+        INSTALLED_APPS = (
+            [...]
+            'clamav_upload',
+        )
+
+The check itself is simple, it relies on the content-type provided by the user's browser but I plan on not relying on this in the future and instead incorporating ``python-magic`` to determine the content-type of the uploaded file.
 
 
 ## To-do
