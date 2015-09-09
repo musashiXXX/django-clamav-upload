@@ -24,7 +24,7 @@ The check is simple, it relies on the content-type provided by the user's browse
 
 ## To-do
 
-    * Create a ``MemoryFileUploadHandler`` version
-    * Implement ``python-magic`` content type checking 
-    * Create a proper package/setup.py
+* Create a ``MemoryFileUploadHandler`` version
+* Implement ``python-magic`` content type checking 
+* Create a proper package/setup.py
 
