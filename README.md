@@ -1,6 +1,10 @@
 # django-clamav-upload
 A virus scanning file upload handler for the Django framework
 
+## Installation
+
+For now, simply copy the ``clamav_upload`` directory into your project directory. An installation script will follow soon.
+
 ## Configuration:
 
     In [django_project]/settings.py:
