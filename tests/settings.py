@@ -1,4 +1,4 @@
-import os, sys, tempfile 
+import os, sys
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'fake-key'
 INSTALLED_APPS = [
