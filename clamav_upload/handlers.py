@@ -18,18 +18,19 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
             self.is_last_handler = True
         else:
             self.is_last_handler = False
-        self.cd = pyclamd.ClamdAgnostic()
-        if not self.cd.ping():
+        try:
+            self.cd = pyclamd.ClamdAgnostic()
+        except ValueError:
             logger.critical('The ClamAV daemon does not appear to be running!')
             messages.error(self.request, 'Service currently unavailable')
             raise PermissionDenied
 
     def new_file(self, file_name, *args, **kwargs):
         super(ClamAVFileUploadHandler, self).new_file(file_name, *args, **kwargs)
-        logger.info('Starting new file upload, scanning for malicious content')
-        logger.info('Original Filename: {0}'.format(self.file.name))
-        logger.info('Temporary Filepath: {0}'.format(self.file.temporary_file_path()))
-        logger.info('Content-Type: {0}'.format(self.file.content_type))
+        logger.debug('Starting new file upload, scanning for malicious content')
+        logger.debug('Original Filename: {0}'.format(self.file.name))
+        logger.debug('Temporary Filepath: {0}'.format(self.file.temporary_file_path()))
+        logger.debug('Content-Type: {0}'.format(self.file.content_type))
         if self.check_content_type:
             try:
                 AllowedContentType.objects.get(allowed_type = self.file.content_type)
@@ -52,7 +53,7 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
             raise PermissionDenied
 
     def file_complete(self, file_size):
-        logger.info('File upload: %s complete!' % self.file.name)
+        logger.debug('File upload: %s complete!' % self.file.name)
         if self.is_last_handler:
             self.file.seek(0)
             self.file.size = file_size
