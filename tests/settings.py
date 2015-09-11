@@ -25,7 +25,7 @@ DATABASES = {
 
 CONTENT_TYPE_CHECK_ENABLED = True
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'test_uploaded_files')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'test_uploaded_files_delete_me')
 
 LOGGING = {
     'version': 1,
