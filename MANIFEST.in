@@ -1,0 +1,3 @@
+include *.py README.md requirements.txt MANIFEST.in
+recursive-include tests clamav_upload
+prune test_uploaded_files_delete_me/*
