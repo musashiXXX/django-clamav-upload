@@ -30,7 +30,12 @@ This determines whether the handler will check the content type of the file agai
             'clamav_upload',
         )
 
-The check itself is simple, it relies on the content-type provided by the user's browser but I plan on not relying on this in the future and instead incorporating ``python-magic`` to determine the content-type of the uploaded file.
+The check itself is simple, it relies on the content-type provided by the user's browser but I plan on not relying on this in the future and instead incorporating ``python-magic`` to determine the content-type of the uploaded file. To _enable_ a content-type, simply add it:
+ 
+        >>> from clamav_upload.models import *
+        >>> a = AllowedContentType(allowed_type = 'video/mpeg').save()
+        
+See the [IANA page on media-types](http://www.iana.org/assignments/media-types/media-types.xhtml) for a comprehensive list.
 
 ## Tests
 
