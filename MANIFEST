@@ -4,6 +4,7 @@ README.md
 requirements.txt
 runtests.py
 setup.py
+clamav_upload/__init__.py
 clamav_upload/admin.py
 clamav_upload/handlers.py
 clamav_upload/models.py
