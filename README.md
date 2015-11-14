@@ -19,7 +19,7 @@ Standard python installation:
             'clamav_upload.handlers.ClamAVFileUploadHandler',
         )
 
-This handler can be used as a total replacement for Django's ``TemporaryFileUploadHandler``. At this time, there is only one other configuration option:
+This handler can be used as a total replacement for Django's ``TemporaryFileUploadHandler``. In addition to scanning uploaded files for malicious content, the handler can also be configured to restrict the types of files that will be accepted. To enable this check, you need to set the following variable in ``settings.py``:
 
         CONTENT_TYPE_CHECK_ENABLED = [True or False]
 
