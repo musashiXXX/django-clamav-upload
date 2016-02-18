@@ -14,7 +14,7 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
     def __init__(self, *args, **kwargs):
         super(ClamAVFileUploadHandler, self).__init__(*args, **kwargs)
         self.check_content_type = getattr(
-            settings, 'CONTENT_TYPE_CHECK_ENABLED', False)  # Need to contain handler settings within its own dict.
+            settings, 'CONTENT_TYPE_CHECK_ENABLED', False)
         last_handler = getattr(settings, 'FILE_UPLOAD_HANDLERS')[-1]
         if last_handler == "{0}.{1}".format(__name__, self.__class__.__name__):
             self.is_last_handler = True
