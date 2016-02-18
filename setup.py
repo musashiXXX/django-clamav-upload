@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-clamav-upload',
-    version='v0.1.0',
+    version='v0.1.1',
     packages=['clamav_upload','tests'],
     url='https://github.com/musashiXXX/django-clamav-upload',
     license='LICENSE.txt',
