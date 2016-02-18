@@ -1,6 +1,5 @@
 from distutils.core import setup
 
-
 setup(
     name='django-clamav-upload',
     version='v0.1.0',
@@ -12,8 +11,8 @@ setup(
     description='A simple upload handler for django that scans inbound streams for malicious content',
     long_description='README.md',
     install_requires=[
-        'Django >=1.8.4',
-        'pyClamd >=0.3.15'
+        'Django>=1.8.4',
+        'pyClamd==0.3.17'
     ],
     keywords='clamav django upload'
 )
