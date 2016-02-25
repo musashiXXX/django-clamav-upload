@@ -1,3 +1,5 @@
-include *.py README.md requirements.txt MANIFEST.in
-recursive-include tests clamav_upload
+include *.py README.md LICENSE.txt requirements.txt MANIFEST.in
+recursive-include clamav_upload *
+recursive-include tests *
 prune test_uploaded_files_delete_me/*
+global-exclude *.pyc

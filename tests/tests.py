@@ -16,7 +16,7 @@ class AllowedContentTypeTestCase(TestCase):
         self.eicar.flush()
         self.eicar.seek(0)
         self.allowed_type = AllowedContentType(
-            allowed_type='application/octet-stream')
+            allowed_type='text/plain')
         self.allowed_type.save()
 
     def tearDown(self):

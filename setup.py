@@ -2,9 +2,10 @@ from distutils.core import setup
 
 setup(
     name='django-clamav-upload',
-    version='v0.1.1',
-    packages=['clamav_upload','tests'],
+    version='0.1.1',
+    packages=['clamav_upload'],
     url='https://github.com/musashiXXX/django-clamav-upload',
+    download_url='https://github.com/musashiXXX/django-clamav-upload/tarball/0.1.1',
     license='LICENSE.txt',
     author='Charles Hamilton',
     author_email='musashi@nefaria.com',

@@ -1,25 +1,24 @@
-import pyclamd, logging
-from django.conf import settings
+import pyclamd, logging, magic
 from django.contrib import messages
 from .models import AllowedContentType
+from clamav_upload import get_settings
 from django.core.exceptions import PermissionDenied
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
 
 
 logger = logging.getLogger(__name__)
+s = get_settings()
 
 
 class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
 
     def __init__(self, *args, **kwargs):
         super(ClamAVFileUploadHandler, self).__init__(*args, **kwargs)
-        self.check_content_type = getattr(
-            settings, 'CONTENT_TYPE_CHECK_ENABLED', False)
-        last_handler = getattr(settings, 'FILE_UPLOAD_HANDLERS')[-1]
-        if last_handler == "{0}.{1}".format(__name__, self.__class__.__name__):
+        self.content_type_check = s.get('CONTENT_TYPE_CHECK_ENABLED')
+        self.content_type_already_checked = False
+        self.is_last_handler = False
+        if s.get('LAST_HANDLER') == "{0}.{1}".format(__name__, self.__class__.__name__):
             self.is_last_handler = True
-        else:
-            self.is_last_handler = False
         try:
             self.cd = pyclamd.ClamdAgnostic()
         except ValueError:
@@ -32,17 +31,28 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
         logger.info('Starting new file upload, scanning for malicious content')
         logger.debug('Original Filename: {0}'.format(self.file.name))
         logger.debug('Temporary Filepath: {0}'.format(self.file.temporary_file_path()))
-        logger.debug('Content-Type: "{0}"'.format(self.file.content_type))
-        if self.check_content_type:
+
+    def check_content_type(self, upload_buffer):
+        if self.content_type_check and not self.content_type_already_checked:
+            content_type = None
             try:
-                AllowedContentType.objects.get(allowed_type=self.file.content_type)
+                content_type = magic.from_buffer(upload_buffer, mime=True)
+                if content_type is None:
+                    error_message = 'Unable to determine content-type, aborting!'
+                    logger.critical(error_message)
+                    messages.error(self.request, error_message)
+                    raise PermissionDenied
+                AllowedContentType.objects.get(allowed_type=content_type)
+                self.content_type_already_checked = True
+                logger.debug('Content-Type: "{0}"'.format(content_type))
             except AllowedContentType.DoesNotExist:
-                error_message = 'Content-Type: {0} is not an accepted type, skipping'.format(self.file.content_type)
-                logger.warning('{0}'.format(error_message))
-                messages.error(self.request, error_message)
-                raise PermissionDenied
+                    error_message = 'Content-Type: {0} is not an accepted type, skipping'.format(content_type)
+                    logger.warning('{0}'.format(error_message))
+                    messages.error(self.request, error_message)
+                    raise PermissionDenied
 
     def receive_data_chunk(self, raw_data, start):
+        self.check_content_type(raw_data)
         try:
             if self.cd.scan_stream(raw_data) is None:
                 if self.is_last_handler:
