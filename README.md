@@ -21,16 +21,18 @@ Standard python installation:
 
 This handler can be used as a total replacement for Django's ``TemporaryFileUploadHandler``. In addition to scanning uploaded files for malicious content, the handler can also be configured to restrict the types of files that will be accepted. To enable this check, you need to set the following variable in ``settings.py``:
 
-        CONTENT_TYPE_CHECK_ENABLED = [True or False]
+    CLAMAV_UPLOAD = {
+        'CONTENT_TYPE_CHECK_ENABLED': True
+    }
 
-This determines whether the handler will check the content type of the file against the allowed types that have been configured in the database. If you don't want this feature, simply leave the option unconfigured -- it defaults to ``False``, but if you do, then you'll need to configure some allowed types from within Django's admin interface. In order to do that, you need to add ``clamav_upload`` to ``INSTALLED_APPS`` in ``settings.py``:
+This determines whether the handler will check the content type of the file against the allowed types that have been configured in the database. If you don't want this feature, simply leave the option unconfigured -- it defaults to ``False``, but if you do, next you'll need to configure some allowed types from within Django's admin interface. In order to do that, you need to add ``clamav_upload`` to ``INSTALLED_APPS`` in ``settings.py``:
 
         INSTALLED_APPS = (
             [...]
             'clamav_upload',
         )
 
-The check itself is simple, it relies on the content-type provided by the user's browser but I plan on not relying on this in the future and instead incorporating ``python-magic`` to determine the content-type of the uploaded file. To _enable_ a content-type, simply add it:
+The check relies on ``python-magic`` to determine the content-type of the uploaded file. To _enable_ a content-type, simply add it:
  
         >>> from clamav_upload.models import *
         >>> a = AllowedContentType(allowed_type = 'video/mpeg').save()
@@ -71,5 +73,4 @@ The test runner attempts to upload three types of files: one "clean", one "infec
 ## To-do
 
 * Create a ``MemoryFileUploadHandler`` version
-* Implement ``python-magic`` content type checking 
 
