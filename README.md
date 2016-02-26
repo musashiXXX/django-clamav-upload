@@ -10,6 +10,10 @@ The ``clamav-daemon`` must be running on the local machine.
 Standard python installation:
 
         python setup.py install
+        
+... or install using pip:
+
+        pip install django-clamav-upload
 
 ## Configuration
 
@@ -68,6 +72,30 @@ You should see the following output:
         [2015-11-09 08:37:49,953] [THIS IS A TEST] [WARNING] [clamav_upload.handlers] Malicious content detected in stream, skipping
 
 The test runner attempts to upload three types of files: one "clean", one "infected", and one clean but unacceptable filetype. 
+
+## Error handling
+
+The upload handler will trigger a 403 if any of the following conditions are met:
+
+ * Attempted upload of a file that is an unacceptable mimetype
+ * Attempted upload of a file that contains malicious content as detected by ClamAV
+ * An exception will be raised if the handler is unable to communicate with ClamAV (clamd)
+ 
+The resulting errors can be retrieved via the messages framework (``django.contrib.messages``) by using a 403 handler.
+Here's an example that returns the error as a JSON response:
+
+    import json
+    from django.http import HttpResponse
+    from django.contrib.messages import get_messages
+    
+    def my_403_handler(request):
+        storage = get_messages(request)
+        response_data = {'error', []}
+        for message in storage:
+            response_data['error'] += [str(message)]
+        return HttpResponse(
+            json.dumps(response_data), content_type='application/json', status=403)
+            
 
 
 ## To-do

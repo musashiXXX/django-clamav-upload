@@ -1,8 +1,7 @@
 import pyclamd, logging, magic
-from django.contrib import messages
 from .models import AllowedContentType
 from clamav_upload import get_settings
-from django.core.exceptions import PermissionDenied
+from .exceptions import UploadPermissionDenied
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
 
 
@@ -22,9 +21,7 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
         try:
             self.cd = pyclamd.ClamdAgnostic()
         except ValueError:
-            logger.critical('The ClamAV daemon does not appear to be running!')
-            messages.error(self.request, 'Service currently unavailable')
-            raise PermissionDenied
+            raise UploadPermissionDenied(self.request, logger.critical, 'Service currently unavailable')
 
     def new_file(self, file_name, *args, **kwargs):
         super(ClamAVFileUploadHandler, self).new_file(file_name, *args, **kwargs)
@@ -38,18 +35,14 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
             try:
                 content_type = magic.from_buffer(upload_buffer, mime=True)
                 if content_type is None:
-                    error_message = 'Unable to determine content-type, aborting!'
-                    logger.critical(error_message)
-                    messages.error(self.request, error_message)
-                    raise PermissionDenied
+                    raise UploadPermissionDenied(
+                        self.request, logger.critical, 'Unable to determine content-type, upload denied!')
                 AllowedContentType.objects.get(allowed_type=content_type)
                 self.content_type_already_checked = True
                 logger.debug('Content-Type: "{0}"'.format(content_type))
             except AllowedContentType.DoesNotExist:
-                    error_message = 'Content-Type: {0} is not an accepted type, skipping'.format(content_type)
-                    logger.warning('{0}'.format(error_message))
-                    messages.error(self.request, error_message)
-                    raise PermissionDenied
+                    raise UploadPermissionDenied(
+                        self.request, logger.critical, 'Content-Type: {0} is not an accepted type'.format(content_type))
 
     def receive_data_chunk(self, raw_data, start):
         self.check_content_type(raw_data)
@@ -60,16 +53,13 @@ class ClamAVFileUploadHandler(TemporaryFileUploadHandler):
                 else:
                     return raw_data
             else:
-                error_message = 'Malicious content detected in stream, skipping'
-                logger.warning(error_message)
-                messages.error(self.request, error_message)
-                raise PermissionDenied
+                raise UploadPermissionDenied(
+                    self.request, logger.critical, 'Malicious content detected in stream, upload denied!')
         except pyclamd.ConnectionError as e:
-            messages.error(self.request, e.message)
-            raise PermissionDenied
+            raise UploadPermissionDenied(self.request, logger.critical, e.message)
 
     def file_complete(self, file_size):
-        logger.info('File upload: %s complete!' % self.file.name)
+        logger.info('File upload: "{0}" complete!'.format(self.file.name))
         if self.is_last_handler:
             self.file.seek(0)
             self.file.size = file_size
