@@ -16,6 +16,8 @@ from django.conf import settings
 
 """
 
+default_app_config = 'clamav_upload.apps.ClamAVUploadConfig'
+
 def get_settings():
     """
         This function returns a dict containing default settings
