@@ -1,5 +1,11 @@
 import pyclamd, logging, magic
-from .models import AllowedContentType
+try:
+    from .models import AllowedContentType
+except RuntimeError:
+    # If we get runtime error here, the handler can still be used to scan for malicious content. This just means that
+    # ``clamav_upload`` isn't in ``INSTALLED_APPS`` and the ``AllowedContentType`` model isn't registered with the
+    # ``django-admin`` interface. The end result is that content-type checking is disabled.
+    pass
 from clamav_upload import get_settings
 from .exceptions import UploadPermissionDenied
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
